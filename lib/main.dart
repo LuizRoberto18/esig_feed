@@ -16,6 +16,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Esig Feed',
       theme: ThemeData(
+        textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
+        scaffoldBackgroundColor: const Color(0xFF196AAB),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       initialRoute: AppRoutes.login,

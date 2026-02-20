@@ -45,5 +45,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Este app precisa acessar a câmera para capturar fotos para suas postagens.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Este app precisa acessar a galeria para selecionar fotos para suas postagens.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Este app precisa acessar sua localização para registrar onde a postagem foi feita.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Este app utiliza Face ID para autenticação segura no login.</string>
 </dict>
 </plist>

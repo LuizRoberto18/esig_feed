@@ -1,24 +1,43 @@
 import 'package:flutter/material.dart';
 
+import 'core/di/injection.dart';
+import 'core/theme/app_colors.dart';
 import 'routes/app_routes.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  setupInjection();
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Esig Feed',
       theme: ThemeData(
-        textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
-        scaffoldBackgroundColor: const Color(0xFF196AAB),
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: AppColors.background,
+        textTheme: const TextTheme(
+          bodyMedium: TextStyle(color: AppColors.textPrimary),
+        ),
+        colorScheme:
+            ColorScheme.fromSeed(
+              seedColor: AppColors.primaryDark,
+              brightness: Brightness.dark,
+            ).copyWith(
+              primary: AppColors.primaryDark,
+              secondary: AppColors.accent,
+              surface: AppColors.surface,
+            ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: AppColors.primaryDark,
+          foregroundColor: AppColors.textPrimary,
+          elevation: 0,
+        ),
       ),
       initialRoute: AppRoutes.login,
       routes: AppRoutes.routes,

@@ -14,12 +14,23 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   get_it: ^9.2.0
+  mobx: ^2.4.0
+  flutter_mobx: ^2.2.1
+  image_picker: ^1.1.2
+  geolocator: ^13.0.2
+  geocoding: ^3.0.0
+  local_auth: ^2.3.0
+  permission_handler: ^11.3.1
+  path_provider: ^2.1.4
+  path: ^1.9.1
   
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^6.0.0
+  build_runner: ^2.4.13
+  mobx_codegen: ^2.6.1
 
 flutter:
 

@@ -6,6 +6,10 @@ import '../../../core/stores/auth_store.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../routes/app_routes.dart';
 
+/// Tela de login do aplicativo ESIG Feed.
+/// Permite que o usuário entre com suas credenciais (usuário e senha).
+/// As credenciais são validadas internamente através do AuthRepository.
+/// Credenciais válidas: admin/admin123, usuario/senha123, teste/teste123, esig/esig2025
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
 
@@ -14,27 +18,18 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> {
+  /// Obtém a instância do AuthStore via injeção de dependência
   final AuthStore _authStore = getIt<AuthStore>();
 
-  @override
-  void initState() {
-    super.initState();
-    _authStore.checkBiometrics();
-  }
-
+  /// Navega para a tela principal do feed após login bem-sucedido
   void _navigateToFeed() {
     Navigator.pushReplacementNamed(context, AppRoutes.home);
   }
 
+  /// Processa a tentativa de login do usuário.
+  /// Chama o método login() do AuthStore e navega ao feed se bem-sucedido.
   Future<void> _handleLogin() async {
     final success = await _authStore.login();
-    if (success && mounted) {
-      _navigateToFeed();
-    }
-  }
-
-  Future<void> _handleBiometric() async {
-    final success = await _authStore.authenticateWithBiometrics();
     if (success && mounted) {
       _navigateToFeed();
     }
@@ -55,6 +50,7 @@ class _AuthPageState extends State<AuthPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Elemento decorativo superior (formato arredondado com cor de destaque)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -82,6 +78,8 @@ class _AuthPageState extends State<AuthPage> {
                     ),
                   ],
                 ),
+
+                // Área central com formulário de login
                 Container(
                   width: width,
                   padding: const EdgeInsets.only(left: 16, right: 16),
@@ -92,7 +90,8 @@ class _AuthPageState extends State<AuthPage> {
                       const SizedBox(height: 32),
                       _Forms(width: width, authStore: _authStore),
                       const SizedBox(height: 8),
-                      // Error message
+
+                      // Exibição de mensagem de erro (observável do MobX)
                       Observer(
                         builder: (_) {
                           if (_authStore.errorMessage != null) {
@@ -111,7 +110,8 @@ class _AuthPageState extends State<AuthPage> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      // Login button
+
+                      // Botão de login com estado de carregamento
                       Observer(
                         builder: (_) => _ActionButton(
                           width: width,
@@ -121,61 +121,35 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Biometric button
-                      Observer(
-                        builder: (_) {
-                          if (!_authStore.canUseBiometrics) {
-                            return const SizedBox.shrink();
-                          }
-                          return Center(
-                            child: GestureDetector(
-                              onTap: _authStore.isBiometricLoading
-                                  ? null
-                                  : _handleBiometric,
-                              child: Column(
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: AppColors.accent,
-                                        width: 2,
-                                      ),
-                                    ),
-                                    child: _authStore.isBiometricLoading
-                                        ? const Padding(
-                                            padding: EdgeInsets.all(16),
-                                            child: CircularProgressIndicator(
-                                              color: AppColors.accent,
-                                              strokeWidth: 2,
-                                            ),
-                                          )
-                                        : const Icon(
-                                            Icons.fingerprint,
-                                            color: AppColors.accent,
-                                            size: 36,
-                                          ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  const Text(
-                                    'Entrar com biometria',
-                                    style: TextStyle(
-                                      color: AppColors.accent,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
+
+                      // Dica de credenciais para facilitar testes
+                      Center(
+                        child: Column(
+                          children: [
+                            const Text(
+                              'Credenciais para teste:',
+                              style: TextStyle(
+                                color: AppColors.textHint,
+                                fontSize: 12,
                               ),
                             ),
-                          );
-                        },
+                            const SizedBox(height: 4),
+                            const Text(
+                              'admin / admin123',
+                              style: TextStyle(
+                                color: AppColors.accent,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
+
+                // Elemento decorativo inferior
                 Container(
                   width: width * 0.32,
                   height: height * 0.12,
@@ -195,6 +169,7 @@ class _AuthPageState extends State<AuthPage> {
   }
 }
 
+/// Widget do cabeçalho da tela de login.
 class _Header extends StatelessWidget {
   final double width;
   const _Header({required this.width});
@@ -221,6 +196,8 @@ class _Header extends StatelessWidget {
   }
 }
 
+/// Widget do formulário de login.
+/// Contém campos de texto para usuário e senha, vinculados ao AuthStore.
 class _Forms extends StatelessWidget {
   final double width;
   final AuthStore authStore;
@@ -230,6 +207,7 @@ class _Forms extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // Campo de nome de usuário
         TextField(
           onChanged: authStore.setUsername,
           style: const TextStyle(color: AppColors.textPrimary),
@@ -250,6 +228,7 @@ class _Forms extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 24),
+        // Campo de senha (texto oculto)
         TextField(
           onChanged: authStore.setPassword,
           obscureText: true,
@@ -275,6 +254,8 @@ class _Forms extends StatelessWidget {
   }
 }
 
+/// Botão de ação para efetuar o login.
+/// Exibe um indicador de carregamento enquanto o login está em processamento.
 class _ActionButton extends StatelessWidget {
   final double width;
   final double height;
@@ -292,7 +273,7 @@ class _ActionButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.accent,
+        backgroundColor: Colors.white,
         foregroundColor: AppColors.primaryDark,
         fixedSize: Size(width, height * 0.05),
         shape: RoundedRectangleBorder(

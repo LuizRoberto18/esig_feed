@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 
+/// Barra horizontal de stories no topo do feed.
+/// Exibe uma lista rolável de avatares de usuários, simulando
+/// a funcionalidade de stories de redes sociais.
+/// O primeiro item é o story do usuário logado com botão de adicionar.
 class StoriesBar extends StatelessWidget {
   const StoriesBar({super.key});
 

@@ -1,4 +1,12 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'auth_store.dart';
+
+// **************************************************************************
+// StoreGenerator
+// **************************************************************************
+
+// ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$AuthStore on _AuthStoreBase, Store {
   late final _$usernameAtom = Atom(
@@ -91,64 +99,6 @@ mixin _$AuthStore on _AuthStoreBase, Store {
     });
   }
 
-  late final _$canUseBiometricsAtom = Atom(
-    name: '_AuthStoreBase.canUseBiometrics',
-    context: context,
-  );
-
-  @override
-  bool get canUseBiometrics {
-    _$canUseBiometricsAtom.reportRead();
-    return super.canUseBiometrics;
-  }
-
-  @override
-  set canUseBiometrics(bool value) {
-    _$canUseBiometricsAtom.reportWrite(value, super.canUseBiometrics, () {
-      super.canUseBiometrics = value;
-    });
-  }
-
-  late final _$isBiometricLoadingAtom = Atom(
-    name: '_AuthStoreBase.isBiometricLoading',
-    context: context,
-  );
-
-  @override
-  bool get isBiometricLoading {
-    _$isBiometricLoadingAtom.reportRead();
-    return super.isBiometricLoading;
-  }
-
-  @override
-  set isBiometricLoading(bool value) {
-    _$isBiometricLoadingAtom.reportWrite(value, super.isBiometricLoading, () {
-      super.isBiometricLoading = value;
-    });
-  }
-
-  late final _$checkBiometricsAsyncAction = AsyncAction(
-    '_AuthStoreBase.checkBiometrics',
-    context: context,
-  );
-
-  @override
-  Future<void> checkBiometrics() {
-    return _$checkBiometricsAsyncAction.run(() => super.checkBiometrics());
-  }
-
-  late final _$authenticateWithBiometricsAsyncAction = AsyncAction(
-    '_AuthStoreBase.authenticateWithBiometrics',
-    context: context,
-  );
-
-  @override
-  Future<bool> authenticateWithBiometrics() {
-    return _$authenticateWithBiometricsAsyncAction.run(
-      () => super.authenticateWithBiometrics(),
-    );
-  }
-
   late final _$loginAsyncAction = AsyncAction(
     '_AuthStoreBase.login',
     context: context,
@@ -207,9 +157,7 @@ username: ${username},
 password: ${password},
 isLoading: ${isLoading},
 isAuthenticated: ${isAuthenticated},
-errorMessage: ${errorMessage},
-canUseBiometrics: ${canUseBiometrics},
-isBiometricLoading: ${isBiometricLoading}
+errorMessage: ${errorMessage}
     ''';
   }
 }

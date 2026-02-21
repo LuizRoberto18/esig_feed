@@ -1,4 +1,12 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'post_store.dart';
+
+// **************************************************************************
+// StoreGenerator
+// **************************************************************************
+
+// ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$PostStore on _PostStoreBase, Store {
   late final _$postsAtom = Atom(name: '_PostStoreBase.posts', context: context);
@@ -34,88 +42,90 @@ mixin _$PostStore on _PostStoreBase, Store {
     });
   }
 
-  late final _$_PostStoreBaseActionController = ActionController(
-    name: '_PostStoreBase',
+  late final _$errorMessageAtom = Atom(
+    name: '_PostStoreBase.errorMessage',
     context: context,
   );
 
   @override
-  void loadPosts() {
-    final _$actionInfo = _$_PostStoreBaseActionController.startAction(
-      name: '_PostStoreBase.loadPosts',
-    );
-    try {
-      return super.loadPosts();
-    } finally {
-      _$_PostStoreBaseActionController.endAction(_$actionInfo);
-    }
+  String? get errorMessage {
+    _$errorMessageAtom.reportRead();
+    return super.errorMessage;
   }
 
   @override
-  void addPost(PostModel post) {
-    final _$actionInfo = _$_PostStoreBaseActionController.startAction(
-      name: '_PostStoreBase.addPost',
-    );
-    try {
-      return super.addPost(post);
-    } finally {
-      _$_PostStoreBaseActionController.endAction(_$actionInfo);
-    }
+  set errorMessage(String? value) {
+    _$errorMessageAtom.reportWrite(value, super.errorMessage, () {
+      super.errorMessage = value;
+    });
   }
 
-  @override
-  void updatePost(PostModel post) {
-    final _$actionInfo = _$_PostStoreBaseActionController.startAction(
-      name: '_PostStoreBase.updatePost',
-    );
-    try {
-      return super.updatePost(post);
-    } finally {
-      _$_PostStoreBaseActionController.endAction(_$actionInfo);
-    }
-  }
+  late final _$loadPostsAsyncAction = AsyncAction(
+    '_PostStoreBase.loadPosts',
+    context: context,
+  );
 
   @override
-  void deletePost(String id) {
-    final _$actionInfo = _$_PostStoreBaseActionController.startAction(
-      name: '_PostStoreBase.deletePost',
-    );
-    try {
-      return super.deletePost(id);
-    } finally {
-      _$_PostStoreBaseActionController.endAction(_$actionInfo);
-    }
+  Future<void> loadPosts() {
+    return _$loadPostsAsyncAction.run(() => super.loadPosts());
   }
 
-  @override
-  void toggleLike(String id) {
-    final _$actionInfo = _$_PostStoreBaseActionController.startAction(
-      name: '_PostStoreBase.toggleLike',
-    );
-    try {
-      return super.toggleLike(id);
-    } finally {
-      _$_PostStoreBaseActionController.endAction(_$actionInfo);
-    }
-  }
+  late final _$addPostAsyncAction = AsyncAction(
+    '_PostStoreBase.addPost',
+    context: context,
+  );
 
   @override
-  void toggleSave(String id) {
-    final _$actionInfo = _$_PostStoreBaseActionController.startAction(
-      name: '_PostStoreBase.toggleSave',
-    );
-    try {
-      return super.toggleSave(id);
-    } finally {
-      _$_PostStoreBaseActionController.endAction(_$actionInfo);
-    }
+  Future<void> addPost(PostModel post) {
+    return _$addPostAsyncAction.run(() => super.addPost(post));
+  }
+
+  late final _$updatePostAsyncAction = AsyncAction(
+    '_PostStoreBase.updatePost',
+    context: context,
+  );
+
+  @override
+  Future<void> updatePost(PostModel post) {
+    return _$updatePostAsyncAction.run(() => super.updatePost(post));
+  }
+
+  late final _$deletePostAsyncAction = AsyncAction(
+    '_PostStoreBase.deletePost',
+    context: context,
+  );
+
+  @override
+  Future<void> deletePost(String id) {
+    return _$deletePostAsyncAction.run(() => super.deletePost(id));
+  }
+
+  late final _$toggleLikeAsyncAction = AsyncAction(
+    '_PostStoreBase.toggleLike',
+    context: context,
+  );
+
+  @override
+  Future<void> toggleLike(String id) {
+    return _$toggleLikeAsyncAction.run(() => super.toggleLike(id));
+  }
+
+  late final _$toggleSaveAsyncAction = AsyncAction(
+    '_PostStoreBase.toggleSave',
+    context: context,
+  );
+
+  @override
+  Future<void> toggleSave(String id) {
+    return _$toggleSaveAsyncAction.run(() => super.toggleSave(id));
   }
 
   @override
   String toString() {
     return '''
 posts: ${posts},
-isLoading: ${isLoading}
+isLoading: ${isLoading},
+errorMessage: ${errorMessage}
     ''';
   }
 }

@@ -8,6 +8,10 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../model/post_model.dart';
 
+/// Tela de formulário para criação e edição de posts.
+/// Permite ao usuário preencher dados do post, adicionar imagens
+/// (via câmera ou galeria), e obter localização GPS do dispositivo.
+/// Integra recursos nativos: câmera (ImagePicker) e localização (Geolocator).
 class PostFormPage extends StatefulWidget {
   final PostModel? post;
 
@@ -19,8 +23,11 @@ class PostFormPage extends StatefulWidget {
 
 class _PostFormPageState extends State<PostFormPage> {
   final _formKey = GlobalKey<FormState>();
+
+  /// Instância do ImagePicker para captura de fotos via câmera ou galeria
   final ImagePicker _picker = ImagePicker();
 
+  // Controladores dos campos de texto do formulário
   late TextEditingController _usernameController;
   late TextEditingController _subtitleController;
   late TextEditingController _dateController;
@@ -29,11 +36,16 @@ class _PostFormPageState extends State<PostFormPage> {
   late TextEditingController _sharesController;
   late TextEditingController _sendsController;
 
+  /// Controladores dinâmicos para URLs/caminhos de imagens
   final List<TextEditingController> _imageControllers = [];
+
+  /// Caminhos das imagens capturadas localmente (câmera/galeria)
   final List<String> _localImagePaths = [];
 
+  /// Indica se estamos editando um post existente ou criando um novo
   bool get isEditing => widget.post != null;
 
+  /// Dados de localização obtidos via GPS
   String? _locationName;
   double? _latitude;
   double? _longitude;
@@ -103,6 +115,9 @@ class _PostFormPageState extends State<PostFormPage> {
     }
   }
 
+  /// Captura uma foto usando a câmera do dispositivo.
+  /// Utiliza o recurso nativo de câmera via ImagePicker.
+  /// A foto capturada é adicionada à lista de imagens do post.
   Future<void> _takePhoto() async {
     try {
       final XFile? photo = await _picker.pickImage(
@@ -136,6 +151,8 @@ class _PostFormPageState extends State<PostFormPage> {
     }
   }
 
+  /// Seleciona múltiplas imagens da galeria do dispositivo.
+  /// Permite ao usuário escolher várias fotos simultaneamente.
   Future<void> _pickFromGallery() async {
     try {
       final List<XFile> images = await _picker.pickMultiImage(
@@ -170,10 +187,15 @@ class _PostFormPageState extends State<PostFormPage> {
     }
   }
 
+  /// Obtém a localização atual do dispositivo via GPS.
+  /// Utiliza o Geolocator para coordenadas e o Geocoding para
+  /// converter as coordenadas em nome de localização legível.
+  /// Integra o recurso nativo de localização do aparelho.
   Future<void> _getLocation() async {
     setState(() => _isLoadingLocation = true);
 
     try {
+      // Verifica se o serviço de localização está ativado
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         if (mounted) {
@@ -269,6 +291,8 @@ class _PostFormPageState extends State<PostFormPage> {
     }
   }
 
+  /// Salva o post (criação ou edição).
+  /// Valida o formulário, coleta as imagens e retorna o PostModel.
   void _save() {
     if (!_formKey.currentState!.validate()) return;
 

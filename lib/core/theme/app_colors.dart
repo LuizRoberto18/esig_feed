@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
+/// Classe de constantes de cores do aplicativo.
+/// Centraliza todas as cores utilizadas para manter consistência visual.
 class AppColors {
   AppColors._();
 
-  // Primary blues from login page
+  // Cores primárias azuis do tema principal
   static const Color primaryDark = Color(0xFF196AAB);
   static const Color primaryLight = Color(0xFF3695D2);
 
-  // Accent orange from login page
+  // Accent orange para login page
   static const Color accent = Color(0xFFFEAE88);
 
   // Surface / background shades
@@ -21,14 +23,14 @@ class AppColors {
   static const Color textSecondary = Color(0xCCFFFFFF);
   static const Color textHint = Color(0x99FFFFFF);
 
-  // Gradient for avatars/stories
+  // Gradient para avatars/stories
   static const List<Color> storyGradient = [
     Color(0xFFFEAE88),
     Color(0xFF3695D2),
     Color(0xFF196AAB),
   ];
 
-  // Button gradient
+  // gradient
   static const LinearGradient buttonGradient = LinearGradient(
     colors: [Color(0xFF3695D2), Color(0xFF196AAB)],
     begin: Alignment.centerLeft,

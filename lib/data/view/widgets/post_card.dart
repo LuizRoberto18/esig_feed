@@ -2,15 +2,26 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../../../core/global.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../model/post_model.dart';
 
+/// Card de post no feed, estilo rede social.
+/// Exibe o cabeçalho do usuário, carrossel de imagens, botões de interação
+/// e informações do post. Suporta ações de edição, exclusão, curtir e salvar.
 class PostCard extends StatefulWidget {
   final PostModel post;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+
+  /// Callback para alternar curtida
   final VoidCallback onToggleLike;
+
+  /// Callback para alternar favorito/salvo
   final VoidCallback onToggleSave;
+
+  /// Callback para navegação à tela de detalhes do post
+  final VoidCallback? onTap;
 
   const PostCard({
     super.key,
@@ -19,6 +30,7 @@ class PostCard extends StatefulWidget {
     required this.onDelete,
     required this.onToggleLike,
     required this.onToggleSave,
+    this.onTap,
   });
 
   @override
@@ -26,7 +38,10 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
+  /// Controlador do carrossel de imagens do post
   late PageController _pageController;
+
+  /// Índice da página atual no carrossel
   int _currentPage = 0;
 
   @override
@@ -41,82 +56,86 @@ class _PostCardState extends State<PostCard> {
     super.dispose();
   }
 
-  String _formatNumber(int number) {
-    if (number >= 1000000) {
-      return '${(number / 1000000).toStringAsFixed(1)}M';
-    } else if (number >= 1000) {
-      return '${(number / 1000).toStringAsFixed(number % 1000 == 0 ? 0 : 1)}K';
-    }
-    return number.toString();
-  }
-
   @override
   Widget build(BuildContext context) {
     final post = widget.post;
 
-    return Container(
-      color: AppColors.primaryDark,
-      margin: const EdgeInsets.only(bottom: 1),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(post),
-          _buildImageCarousel(post),
-          _buildActionButtons(post),
+    // GestureDetector para detectar toque e navegar aos detalhes
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: Container(
+        color: AppColors.primaryDark,
+        margin: const EdgeInsets.only(bottom: 1),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Cabeçalho com avatar, nome, botão seguir e menu de opções
+            _buildHeader(post),
 
-          // Likes
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Text(
-              '${_formatNumber(post.likes)} curtidas',
-              style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ),
+            // Carrossel de imagens com indicador de página
+            _buildImageCarousel(post),
 
-          // Location if available
-          if (post.locationName != null && post.locationName!.isNotEmpty)
+            // Botões de interação (curtir, comentar, compartilhar, enviar, salvar)
+            _buildActionButtons(post),
+
+            // Contador de curtidas
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-              child: Row(
-                children: [
-                  const Icon(Icons.place, color: AppColors.accent, size: 14),
-                  const SizedBox(width: 4),
-                  Text(
-                    post.locationName!,
-                    style: const TextStyle(
-                      color: AppColors.accent,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Text(
+                '${formatNumber(post.likes)} curtidas',
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
               ),
             ),
 
-          // Date
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-            child: Text(
-              post.date,
-              style: const TextStyle(color: AppColors.textHint, fontSize: 12),
-            ),
-          ),
+            // Nome da localização (exibido se disponível)
+            if (post.locationName != null && post.locationName!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 4,
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.place, color: AppColors.accent, size: 14),
+                    const SizedBox(width: 4),
+                    Text(
+                      post.locationName!,
+                      style: const TextStyle(
+                        color: AppColors.accent,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
-          const SizedBox(height: 4),
-        ],
+            // Data do post
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              child: Text(
+                post.date,
+                style: const TextStyle(color: AppColors.textHint, fontSize: 12),
+              ),
+            ),
+
+            const SizedBox(height: 4),
+          ],
+        ),
       ),
     );
   }
 
+  /// Constrói o cabeçalho do card com avatar, nome de usuário e opções
   Widget _buildHeader(PostModel post) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Row(
         children: [
-          // Avatar with gradient
+          // Avatar com borda gradiente estilo stories
           Container(
             width: 38,
             height: 38,
@@ -140,7 +159,9 @@ class _PostCardState extends State<PostCard> {
                   child: CircleAvatar(
                     backgroundColor: AppColors.surface,
                     child: Text(
-                      post.username[0].toUpperCase(),
+                      post.username.isNotEmpty
+                          ? post.username[0].toUpperCase()
+                          : '?',
                       style: const TextStyle(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.bold,
@@ -154,7 +175,7 @@ class _PostCardState extends State<PostCard> {
           ),
           const SizedBox(width: 10),
 
-          // Username and subtitle
+          // Nome de usuário e subtítulo/descrição
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,12 +195,14 @@ class _PostCardState extends State<PostCard> {
                       color: AppColors.textSecondary,
                       fontSize: 12,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
               ],
             ),
           ),
 
-          // Follow button
+          // Botão "Seguir" estilizado
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
             decoration: BoxDecoration(
@@ -197,7 +220,7 @@ class _PostCardState extends State<PostCard> {
           ),
           const SizedBox(width: 4),
 
-          // More options menu
+          // Menu popup com opções de editar e excluir
           PopupMenuButton<String>(
             icon: const Icon(
               Icons.more_vert,
@@ -217,7 +240,7 @@ class _PostCardState extends State<PostCard> {
                 value: 'edit',
                 child: Row(
                   children: [
-                    Icon(Icons.edit, color: AppColors.accent, size: 18),
+                    Icon(Icons.edit, color: AppColors.textPrimary, size: 18),
                     SizedBox(width: 10),
                     Text(
                       'Editar',
@@ -230,9 +253,9 @@ class _PostCardState extends State<PostCard> {
                 value: 'delete',
                 child: Row(
                   children: [
-                    Icon(Icons.delete, color: AppColors.danger, size: 18),
+                    Icon(Icons.delete, color: AppColors.accent, size: 18),
                     SizedBox(width: 10),
-                    Text('Excluir', style: TextStyle(color: AppColors.danger)),
+                    Text('Excluir', style: TextStyle(color: AppColors.accent)),
                   ],
                 ),
               ),
@@ -243,6 +266,7 @@ class _PostCardState extends State<PostCard> {
     );
   }
 
+  /// Constrói o carrossel de imagens com indicador de posição
   Widget _buildImageCarousel(PostModel post) {
     return Stack(
       children: [
@@ -258,6 +282,7 @@ class _PostCardState extends State<PostCard> {
               final imageUrl = post.imageUrls[index];
               final isLocal = !imageUrl.startsWith('http');
 
+              // Suporte para imagens locais (câmera) e URLs remotas
               return isLocal
                   ? Image.file(
                       File(imageUrl),
@@ -291,7 +316,7 @@ class _PostCardState extends State<PostCard> {
           ),
         ),
 
-        // Page indicator (top right)
+        // Indicador de página no canto superior direito (ex: 1/3)
         if (post.imageUrls.length > 1)
           Positioned(
             top: 14,
@@ -316,6 +341,7 @@ class _PostCardState extends State<PostCard> {
     );
   }
 
+  /// Widget de fallback para quando a imagem não carrega
   Widget _buildImageError() {
     return Container(
       color: AppColors.surface,
@@ -329,47 +355,52 @@ class _PostCardState extends State<PostCard> {
     );
   }
 
+  /// Constrói a barra de botões de interação abaixo da imagem
   Widget _buildActionButtons(PostModel post) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: Row(
         children: [
+          // Botão de curtida com indicador visual de estado
           _ActionIconWithCount(
             icon: post.isLiked
                 ? Icons.favorite
                 : Icons.favorite_border_outlined,
             color: post.isLiked ? AppColors.danger : AppColors.textPrimary,
-            count: _formatNumber(post.likes),
+            count: formatNumber(post.likes),
             onTap: widget.onToggleLike,
           ),
           const SizedBox(width: 12),
 
+          // Botão de comentários
           _ActionIconWithCount(
             icon: Icons.chat_bubble_outline,
             color: AppColors.textPrimary,
-            count: _formatNumber(post.comments),
+            count: formatNumber(post.comments),
             onTap: () {},
           ),
           const SizedBox(width: 12),
 
+          // Botão de compartilhamento
           _ActionIconWithCount(
             icon: Icons.repeat,
             color: AppColors.textPrimary,
-            count: _formatNumber(post.shares),
+            count: formatNumber(post.shares),
             onTap: () {},
           ),
           const SizedBox(width: 12),
 
+          // Botão de envio direto
           _ActionIconWithCount(
             icon: Icons.send_outlined,
             color: AppColors.textPrimary,
-            count: _formatNumber(post.sends),
+            count: formatNumber(post.sends),
             onTap: () {},
           ),
 
           const Spacer(),
 
-          // Dots indicator
+          // Indicadores de pontos para múltiplas imagens
           if (post.imageUrls.length > 1)
             Row(
               children: List.generate(post.imageUrls.length, (index) {
@@ -389,7 +420,7 @@ class _PostCardState extends State<PostCard> {
 
           const Spacer(),
 
-          // Save
+          // Botão de salvar/favoritar
           GestureDetector(
             onTap: widget.onToggleSave,
             child: Icon(
@@ -403,6 +434,7 @@ class _PostCardState extends State<PostCard> {
     );
   }
 
+  /// Exibe diálogo de confirmação para exclusão do post
   void _showDeleteDialog() {
     showDialog(
       context: context,
@@ -431,7 +463,7 @@ class _PostCardState extends State<PostCard> {
             },
             child: const Text(
               'Excluir',
-              style: TextStyle(color: AppColors.danger),
+              style: TextStyle(color: AppColors.accent),
             ),
           ),
         ],
@@ -440,6 +472,8 @@ class _PostCardState extends State<PostCard> {
   }
 }
 
+/// Widget auxiliar para exibir um ícone de ação com contagem ao lado.
+/// Usado para curtidas, comentários, compartilhamentos e envios.
 class _ActionIconWithCount extends StatelessWidget {
   final IconData icon;
   final Color color;

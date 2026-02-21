@@ -6,7 +6,10 @@ import 'routes/app_routes.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Configura a injeção de dependência (GetIt)
   setupInjection();
+
   runApp(const MyApp());
 }
 

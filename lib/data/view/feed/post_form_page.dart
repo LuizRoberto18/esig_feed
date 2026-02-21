@@ -362,7 +362,7 @@ class _PostFormPageState extends State<PostFormPage> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _buildTextField(
+            _PostTextField(
               controller: _usernameController,
               label: 'Nome de usuário',
               icon: Icons.person,
@@ -379,14 +379,14 @@ class _PostFormPageState extends State<PostFormPage> {
             Row(
               children: [
                 Expanded(
-                  child: _buildTextField(
+                  child: _PostTextField(
                     controller: _subtitleController,
                     label: 'Localização',
                     icon: Icons.location_on,
                   ),
                 ),
                 const SizedBox(width: 8),
-                _buildIconButton(
+                _PostIconButton(
                   icon: _isLoadingLocation
                       ? Icons.hourglass_top
                       : Icons.my_location,
@@ -415,7 +415,7 @@ class _PostFormPageState extends State<PostFormPage> {
             ],
             const SizedBox(height: 16),
 
-            _buildTextField(
+            _PostTextField(
               controller: _dateController,
               label: 'Data (ex: 2 de fevereiro)',
               icon: Icons.calendar_today,
@@ -431,7 +431,7 @@ class _PostFormPageState extends State<PostFormPage> {
             Row(
               children: [
                 Expanded(
-                  child: _buildTextField(
+                  child: _PostTextField(
                     controller: _likesController,
                     label: 'Curtidas',
                     icon: Icons.favorite,
@@ -440,7 +440,7 @@ class _PostFormPageState extends State<PostFormPage> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _buildTextField(
+                  child: _PostTextField(
                     controller: _commentsController,
                     label: 'Comentários',
                     icon: Icons.chat_bubble,
@@ -454,7 +454,7 @@ class _PostFormPageState extends State<PostFormPage> {
             Row(
               children: [
                 Expanded(
-                  child: _buildTextField(
+                  child: _PostTextField(
                     controller: _sharesController,
                     label: 'Compartilh.',
                     icon: Icons.repeat,
@@ -463,7 +463,7 @@ class _PostFormPageState extends State<PostFormPage> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _buildTextField(
+                  child: _PostTextField(
                     controller: _sendsController,
                     label: 'Envios',
                     icon: Icons.send,
@@ -488,13 +488,13 @@ class _PostFormPageState extends State<PostFormPage> {
                 ),
                 Row(
                   children: [
-                    _buildIconButton(
+                    _PostIconButton(
                       icon: Icons.camera_alt,
                       onTap: _takePhoto,
                       tooltip: 'Tirar foto',
                     ),
                     const SizedBox(width: 8),
-                    _buildIconButton(
+                    _PostIconButton(
                       icon: Icons.photo_library,
                       onTap: _pickFromGallery,
                       tooltip: 'Galeria',
@@ -520,7 +520,7 @@ class _PostFormPageState extends State<PostFormPage> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: _buildTextField(
+                      child: _PostTextField(
                         controller: _imageControllers[index],
                         label: 'Imagem ${index + 1}',
                         icon: Icons.image,
@@ -542,28 +542,35 @@ class _PostFormPageState extends State<PostFormPage> {
             const SizedBox(height: 16),
 
             // Image preview
-            _buildImagePreviews(),
+            _PostImagePreviews(
+              imagePaths: _imageControllers
+                  .map((c) => c.text.trim())
+                  .where((p) => p.isNotEmpty)
+                  .toList(),
+            ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildImagePreviews() {
-    final allPaths = _imageControllers
-        .map((c) => c.text.trim())
-        .where((p) => p.isNotEmpty)
-        .toList();
+class _PostImagePreviews extends StatelessWidget {
+  final List<String> imagePaths;
 
-    if (allPaths.isEmpty) return const SizedBox.shrink();
+  const _PostImagePreviews({required this.imagePaths});
+
+  @override
+  Widget build(BuildContext context) {
+    if (imagePaths.isEmpty) return const SizedBox.shrink();
 
     return SizedBox(
       height: 120,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: allPaths.length,
+        itemCount: imagePaths.length,
         itemBuilder: (context, index) {
-          final path = allPaths[index];
+          final path = imagePaths[index];
           final isLocal = !path.startsWith('http');
 
           return Padding(
@@ -583,12 +590,14 @@ class _PostFormPageState extends State<PostFormPage> {
                     ? Image.file(
                         File(path),
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _buildErrorPreview(),
+                        errorBuilder: (_, error, stackTrace) =>
+                            const _PostErrorPreview(),
                       )
                     : Image.network(
                         path,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _buildErrorPreview(),
+                        errorBuilder: (_, error, stackTrace) =>
+                            const _PostErrorPreview(),
                       ),
               ),
             ),
@@ -597,8 +606,13 @@ class _PostFormPageState extends State<PostFormPage> {
       ),
     );
   }
+}
 
-  Widget _buildErrorPreview() {
+class _PostErrorPreview extends StatelessWidget {
+  const _PostErrorPreview();
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: 120,
       height: 120,
@@ -606,12 +620,17 @@ class _PostFormPageState extends State<PostFormPage> {
       child: const Icon(Icons.broken_image, color: AppColors.textHint),
     );
   }
+}
 
-  Widget _buildIconButton({
-    required IconData icon,
-    VoidCallback? onTap,
-    String? tooltip,
-  }) {
+class _PostIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onTap;
+  final String? tooltip;
+
+  const _PostIconButton({required this.icon, this.onTap, this.tooltip});
+
+  @override
+  Widget build(BuildContext context) {
     return Tooltip(
       message: tooltip ?? '',
       child: GestureDetector(
@@ -629,14 +648,25 @@ class _PostFormPageState extends State<PostFormPage> {
       ),
     );
   }
+}
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    String? Function(String?)? validator,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
+class _PostTextField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final IconData icon;
+  final String? Function(String?)? validator;
+  final TextInputType keyboardType;
+
+  const _PostTextField({
+    required this.controller,
+    required this.label,
+    required this.icon,
+    this.validator,
+    this.keyboardType = TextInputType.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
       validator: validator,

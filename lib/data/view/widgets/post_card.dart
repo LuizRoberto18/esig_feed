@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../core/global.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../model/post_model.dart';
+import 'post_card_image_error.dart';
 
 /// Card de post no feed, estilo rede social.
 /// Exibe o cabeçalho do usuário, carrossel de imagens, botões de interação
@@ -38,10 +39,7 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
-  /// Controlador do carrossel de imagens do post
   late PageController _pageController;
-
-  /// Índice da página atual no carrossel
   int _currentPage = 0;
 
   @override
@@ -70,15 +68,25 @@ class _PostCardState extends State<PostCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Cabeçalho com avatar, nome, botão seguir e menu de opções
-            _buildHeader(post),
-
+            _PostCardHeader(
+              post: post,
+              onEdit: widget.onEdit,
+              onDelete: _showDeleteDialog,
+            ),
             // Carrossel de imagens com indicador de página
-            _buildImageCarousel(post),
-
+            _PostCardImageCarousel(
+              post: post,
+              pageController: _pageController,
+              currentPage: _currentPage,
+              onPageChanged: (index) => setState(() => _currentPage = index),
+            ),
             // Botões de interação (curtir, comentar, compartilhar, enviar, salvar)
-            _buildActionButtons(post),
-
-            // Contador de curtidas
+            _PostCardActions(
+              post: post,
+              currentPage: _currentPage,
+              onToggleLike: widget.onToggleLike,
+              onToggleSave: widget.onToggleSave,
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14),
               child: Text(
@@ -112,8 +120,6 @@ class _PostCardState extends State<PostCard> {
                   ],
                 ),
               ),
-
-            // Data do post
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               child: Text(
@@ -121,7 +127,6 @@ class _PostCardState extends State<PostCard> {
                 style: const TextStyle(color: AppColors.textHint, fontSize: 12),
               ),
             ),
-
             const SizedBox(height: 4),
           ],
         ),
@@ -129,8 +134,58 @@ class _PostCardState extends State<PostCard> {
     );
   }
 
-  /// Constrói o cabeçalho do card com avatar, nome de usuário e opções
-  Widget _buildHeader(PostModel post) {
+  /// Exibe diálogo de confirmação para exclusão do post
+  void _showDeleteDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text(
+          'Excluir postagem',
+          style: TextStyle(color: AppColors.textPrimary),
+        ),
+        content: const Text(
+          'Tem certeza que deseja excluir esta postagem?',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              widget.onDelete();
+            },
+            child: const Text(
+              'Excluir',
+              style: TextStyle(color: AppColors.accent),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Constrói o cabeçalho do card com avatar, nome de usuário e opções
+class _PostCardHeader extends StatelessWidget {
+  final PostModel post;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  const _PostCardHeader({
+    required this.post,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Row(
@@ -230,9 +285,9 @@ class _PostCardState extends State<PostCard> {
             color: AppColors.surface,
             onSelected: (value) {
               if (value == 'edit') {
-                widget.onEdit();
+                onEdit();
               } else if (value == 'delete') {
-                _showDeleteDialog();
+                onDelete();
               }
             },
             itemBuilder: (context) => [
@@ -265,31 +320,43 @@ class _PostCardState extends State<PostCard> {
       ),
     );
   }
+}
 
-  /// Constrói o carrossel de imagens com indicador de posição
-  Widget _buildImageCarousel(PostModel post) {
+///Carrossel de imagens com indicador de posição
+class _PostCardImageCarousel extends StatelessWidget {
+  final PostModel post;
+  final PageController pageController;
+  final int currentPage;
+  final ValueChanged<int> onPageChanged;
+
+  const _PostCardImageCarousel({
+    required this.post,
+    required this.pageController,
+    required this.currentPage,
+    required this.onPageChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Stack(
       children: [
         SizedBox(
           height: 400,
           child: PageView.builder(
-            controller: _pageController,
+            controller: pageController,
             itemCount: post.imageUrls.length,
-            onPageChanged: (index) {
-              setState(() => _currentPage = index);
-            },
+            onPageChanged: onPageChanged,
             itemBuilder: (context, index) {
               final imageUrl = post.imageUrls[index];
               final isLocal = !imageUrl.startsWith('http');
 
-              // Suporte para imagens locais (câmera) e URLs remotas
               return isLocal
                   ? Image.file(
                       File(imageUrl),
                       fit: BoxFit.cover,
                       width: double.infinity,
                       errorBuilder: (context, error, stackTrace) {
-                        return _buildImageError();
+                        return const PostCardImageError();
                       },
                     )
                   : Image.network(
@@ -309,14 +376,12 @@ class _PostCardState extends State<PostCard> {
                         );
                       },
                       errorBuilder: (context, error, stackTrace) {
-                        return _buildImageError();
+                        return const PostCardImageError();
                       },
                     );
             },
           ),
         ),
-
-        // Indicador de página no canto superior direito (ex: 1/3)
         if (post.imageUrls.length > 1)
           Positioned(
             top: 14,
@@ -328,7 +393,7 @@ class _PostCardState extends State<PostCard> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                '${_currentPage + 1}/${post.imageUrls.length}',
+                '${currentPage + 1}/${post.imageUrls.length}',
                 style: const TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 13,
@@ -340,23 +405,24 @@ class _PostCardState extends State<PostCard> {
       ],
     );
   }
+}
 
-  /// Widget de fallback para quando a imagem não carrega
-  Widget _buildImageError() {
-    return Container(
-      color: AppColors.surface,
-      child: const Center(
-        child: Icon(
-          Icons.image_not_supported,
-          color: AppColors.textHint,
-          size: 60,
-        ),
-      ),
-    );
-  }
+/// Constrói a barra de botões de interação abaixo da imagem
+class _PostCardActions extends StatelessWidget {
+  final PostModel post;
+  final int currentPage;
+  final VoidCallback onToggleLike;
+  final VoidCallback onToggleSave;
 
-  /// Constrói a barra de botões de interação abaixo da imagem
-  Widget _buildActionButtons(PostModel post) {
+  const _PostCardActions({
+    required this.post,
+    required this.currentPage,
+    required this.onToggleLike,
+    required this.onToggleSave,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: Row(
@@ -368,7 +434,7 @@ class _PostCardState extends State<PostCard> {
                 : Icons.favorite_border_outlined,
             color: post.isLiked ? AppColors.danger : AppColors.textPrimary,
             count: formatNumber(post.likes),
-            onTap: widget.onToggleLike,
+            onTap: onToggleLike,
           ),
           const SizedBox(width: 12),
 
@@ -397,10 +463,7 @@ class _PostCardState extends State<PostCard> {
             count: formatNumber(post.sends),
             onTap: () {},
           ),
-
           const Spacer(),
-
-          // Indicadores de pontos para múltiplas imagens
           if (post.imageUrls.length > 1)
             Row(
               children: List.generate(post.imageUrls.length, (index) {
@@ -410,19 +473,18 @@ class _PostCardState extends State<PostCard> {
                   height: 6,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _currentPage == index
+                    color: currentPage == index
                         ? AppColors.accent
                         : AppColors.primaryLight.withOpacity(0.5),
                   ),
                 );
               }),
             ),
-
           const Spacer(),
 
           // Botão de salvar/favoritar
           GestureDetector(
-            onTap: widget.onToggleSave,
+            onTap: onToggleSave,
             child: Icon(
               post.isSaved ? Icons.bookmark : Icons.bookmark_border,
               color: post.isSaved ? AppColors.accent : AppColors.textPrimary,
@@ -433,47 +495,8 @@ class _PostCardState extends State<PostCard> {
       ),
     );
   }
-
-  /// Exibe diálogo de confirmação para exclusão do post
-  void _showDeleteDialog() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: const Text(
-          'Excluir postagem',
-          style: TextStyle(color: AppColors.textPrimary),
-        ),
-        content: const Text(
-          'Tem certeza que deseja excluir esta postagem?',
-          style: TextStyle(color: AppColors.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text(
-              'Cancelar',
-              style: TextStyle(color: AppColors.textSecondary),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              widget.onDelete();
-            },
-            child: const Text(
-              'Excluir',
-              style: TextStyle(color: AppColors.accent),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-/// Widget auxiliar para exibir um ícone de ação com contagem ao lado.
-/// Usado para curtidas, comentários, compartilhamentos e envios.
 class _ActionIconWithCount extends StatelessWidget {
   final IconData icon;
   final Color color;
